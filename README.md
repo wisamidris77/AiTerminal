@@ -7,6 +7,22 @@ This repository provides a terminal with ai for easily terminal writing.
 
 https://github.com/user-attachments/assets/3668b446-f97c-46f5-855d-24d7f75db039
 
+- Write `exit` in message to exit from AiTerminal
+- Write `clear_data` to reset data to use new api config
+
+- If your ai model not there you have to go Program.cs
+
+```c#
+public class Program
+{
+    public static async Task Main(string[] args)
+    {
+        ApiKeyProvider.SelectedModel = ChatModel.Groq.Meta.Llama38B; // Custom model
+        // Other logic
+    }
+}
+```
+
 ## **Download It From Releases:**
 
 https://github.com/wisamidris77/AiTerminal/releases
@@ -31,6 +47,22 @@ https://github.com/wisamidris77/AiTerminal/releases
 * **User-Friendly:** Intuitive command-line interface for easy interaction and control.
 * **Customizable:** Tailor the AI's behavior and responses to your specific needs.
 * **Efficient:** Leverage the power of the terminal for a streamlined and efficient workflow.
+
+**Changelog**
+### 0.0.2 Second Version
+1. Supporting larger llms apis with llmTornado
+2. Making option to clear ai data using `clear_data` in message
+3. Making option to exit app using `exit` in message
+4. Supporting multiple commands at once
+5. Improved prompt
+
+### 0.0.1 Inital Version
+1. Inital Version
+2. Single command support
+3. Only gemini api
+
+
+Thanks to https://github.com/lofcz/LlmTornado
 
 **Contributing:**
 
