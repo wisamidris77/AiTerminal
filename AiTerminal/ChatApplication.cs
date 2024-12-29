@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AiTerminal.Abstraction;
 using AiTerminal.Helpers;
@@ -22,36 +23,44 @@ namespace AiTerminal
             _systemInstruction = SystemInstructions.Initialize();
         }
 
-        public async Task Run()
+        public async Task<bool> Run()
         {
-            Console.WriteLine("Gemini Terminal Assistant");
+            Console.WriteLine("Ai Terminal Assistant");
             Console.WriteLine("---------------------");
 
             while (true)
             {
                 var prompt = GetUserInput();
+                if (prompt == "clear_data")
+                    return true;
+                if (prompt == "exit")
+                    return false;
                 if (string.IsNullOrWhiteSpace(prompt)) continue;
                 if (prompt == "exit") break;
                 _chatContents.AddContent(ContentModel.User([prompt]));
                 var content = await _aiClient.GenerateContent(_chatContents, _systemInstruction);
                 _chatContents.AddContent(ContentModel.Model([content]));
-                var (terminalCommand, explanation) = ParseContent(content);
+                var (terminalCommands, explanation) = ParseContent(content);
 
                 DisplayExplanation(explanation);
 
-                if (terminalCommand != null)
+                if (terminalCommands?.Any() ?? false)
                 {
-                    DisplayCommand(terminalCommand);
-                    if (GetUserConfirmation())
+                    foreach (var terminalCommand in terminalCommands)
                     {
-                        TerminalCommandRunner.ExecuteCommand(terminalCommand);
-                    }
-                    else
-                    {
-                        Console.WriteLine("Command execution skipped.");
+                        DisplayCommand(terminalCommand);
+                        if (GetUserConfirmation())
+                        {
+                            TerminalCommandRunner.ExecuteCommand(terminalCommand);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Command execution skipped.");
+                        }
                     }
                 }
             }
+            return false;
         }
 
         private string? GetUserInput()
@@ -60,24 +69,26 @@ namespace AiTerminal
             return Console.ReadLine();
         }
 
-        private (string? terminalCommand, StringBuilder explanation) ParseContent(string content)
+        private (List<string>? terminalCommand, StringBuilder explanation) ParseContent(string content)
         {
-            string? terminalCommand = null;
+            List<string>? terminalCommands = [];
             StringBuilder explanation = new StringBuilder();
 
             foreach (var item in content.Split('\n'))
             {
-                if (terminalCommand == null && item.StartsWith("Terminal:", StringComparison.OrdinalIgnoreCase))
+                string pattern = @"^([""'`])|([""'`])$";
+                var parsedLine = Regex.Replace(item, pattern, "");
+                if (parsedLine.StartsWith("Terminal:", StringComparison.OrdinalIgnoreCase))
                 {
-                    terminalCommand = item.Substring("Terminal:".Length).Trim();
+                    terminalCommands.Add(parsedLine.Substring("Terminal:".Length).Trim());
                 }
-                else if (terminalCommand == null)
+                else
                 {
                     explanation.AppendLine(item);
                 }
             }
 
-            return (terminalCommand, explanation);
+            return (terminalCommands, explanation);
         }
 
         private void DisplayExplanation(StringBuilder explanation)
@@ -89,7 +100,7 @@ namespace AiTerminal
         {
             CliHelper.WriteColored("> ", ConsoleColor.Yellow);
             CliHelper.WriteLineColored(terminalCommand, ConsoleColor.White);
-            CliHelper.WriteLineColored("Warning: Gemini might make mistakes with commands. Review carefully.", ConsoleColor.DarkYellow);
+            CliHelper.WriteLineColored("Warning: Ai might make mistakes with commands. Review carefully.", ConsoleColor.DarkYellow);
         }
 
         private bool GetUserConfirmation()

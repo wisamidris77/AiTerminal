@@ -10,6 +10,6 @@ namespace AiTerminal.Abstraction
 {
     public interface IAiClient
     {
-        Task<string> GenerateContent(ChatContents contents, ContentModel systemInstructions);
+        Task<string?> GenerateContent(ChatContents contents, ContentModel systemInstructions);
     }
 }
