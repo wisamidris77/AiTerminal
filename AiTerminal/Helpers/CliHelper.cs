@@ -1,6 +1,4 @@
 using System;
-using Markdig;
-using Spectre.Console;
 
 namespace AiTerminal.Helpers
 {

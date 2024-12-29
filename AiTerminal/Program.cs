@@ -8,12 +8,12 @@ using LlmTornado;
 
 public class Program
 {
-
     public static async Task Main(string[] args)
     {
+        //ApiKeyProvider.SelectedModel = ChatModel.Groq.Meta.Llama38B; // Custom models
+        
         while (true)
         {
-            //ApiKeyProvider.SelectedModel = ChatModel.Groq.Meta.Llama38B; // Custom models
             await ApiKeyProvider.InitApiKeyAndModel();
             TornadoApi api = new TornadoApi(new List<ProviderAuthentication>
             {
